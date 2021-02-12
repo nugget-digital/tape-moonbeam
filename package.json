@@ -3,7 +3,6 @@
     "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write ./**/**.js"
   },
   "dependencies": {
-    "@openzeppelin/test-environment": "^0.1.9",
     "tape": "^5.1.1"
   }
 }
