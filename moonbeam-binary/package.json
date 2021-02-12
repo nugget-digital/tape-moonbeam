@@ -1,0 +1,19 @@
+{
+  "name": "moonbeam-binary",
+  "version": "0.0.0",
+  "description": "installs a moonbeam binary and prints its path",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "keywords": [
+    "moonbeam",
+    "ethereum",
+    "blockchain",
+    "smart-contracts",
+    "substrate",
+    "parachain"
+  ],
+  "author": "Noah Anabiik Schwarz",
+  "license": "MIT"
+}
