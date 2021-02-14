@@ -9,5 +9,4 @@ todo
 figure out workflow
 
 + solc
-+ deploy on testnet
 + then tape-parity (with nanoeth)

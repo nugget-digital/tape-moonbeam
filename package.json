@@ -1,8 +1,16 @@
 {
   "scripts": {
-    "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write ./**/**.js"
+    "fmt": "npx standard --fix"
   },
   "dependencies": {
-    "tape": "^5.1.1"
+    "tape": "^5.1.1",
+    "moonbeam-binary": "nugget-digital/moonbeam-binary",
+    "duplexify": "^4.1.1",
+    "eth-helpers": "^1.1.0",
+    "eth-keygen": "^1.0.0",
+    "eth-sign": "^0.3.4",
+    "nanoassert": "^2.0.0",
+    "nanoeth": "^2.5.2",
+    "sodium-native": "^3.2.0"
   }
 }
