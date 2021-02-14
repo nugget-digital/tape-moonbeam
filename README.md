@@ -10,3 +10,7 @@ figure out workflow
 
 + solc
 + then tape-parity (with nanoeth)
+
+## todo
+
++ touch moonbeam-spawn
