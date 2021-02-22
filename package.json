@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "fmt": "npx standard --fix"
+    "fmt": "npx standard --fix",
+    "test": "node ./test.js"
   },
   "dependencies": {
     "tape": "^5.1.1",
