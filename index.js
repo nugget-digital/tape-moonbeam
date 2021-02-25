@@ -20,23 +20,20 @@ if (fs.existsSync("./.tape-moonbeam.json")) {
 var _createStream = Result.prototype.createStream
 
 Result.prototype.createStream = function (...args) {
-  var s = duplexify()
-
-  var opts = { exec, customTypes }
+  var duplex = duplexify()
 
   moonbeam(async web3 => {
     tape.Test.prototype.web3 = web3
 
-    var ts = _createStream.call(this, ...args)
-    s.setReadable(ts)
+    duplex.setReadable(_createStream.call(this, ...args))
 
     await Promise.race([
       EventEmitter.once(this, "done"),
       EventEmitter.once(this, "fail")
     ])
-  }, opts).catch(e => s.destroy(e))
+  }, { exec, customTypes }).catch(err => duplex.destroy(err))
 
-  return s
+  return duplex
 }
 
 module.exports = tape
