@@ -1,24 +1,73 @@
-var test = require("..")
+var tape = require("..")
 
-test("alice transfers to bob", async t => {
-  var privKey =
-    "99b3c12287537e38c90a9219d4cb074a89a16e9cdb20bf85728ebd97c343e342" // Genesis private key
-  var addressFrom = "0x6Be02d1d3665660d22FF9624b7BE0551ee1Ac91b"
-  var addressTo = "0x44236223aB4291b93EEd10E4B511B37a398DEE55" // Change addressTo
-
+tape("alice transfers to bob", async t => {
   var tx = await t.web3.eth.accounts.signTransaction(
     {
-      from: addressFrom,
-      to: addressTo,
+      from: tape.genesis.address,
+      to: "0x44236223aB4291b93EEd10E4B511B37a398DEE55",
       value: t.web3.utils.toWei("100", "ether"),
       gas: 21000
     },
-    privKey
+    tape.genesis.privateKey
   )
 
   var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
 
   t.ok(receipt.transactionHash)
+
+  t.end()
+})
+
+tape("deployin & interactin with the incrementer contract", async t => {
+  var artifact = await t.compile(require.resolve("./Incrementer.sol"))
+  var contract = new web3.eth.Contract(artifact.abi)
+
+  var address = await contract
+    .deploy({ data: artifact.bytecode, arguments: [419] })
+    .send({ from: t.genesis.from })
+    .then(instance => instance.options.address)
+
+  var num = await contract.methods.number().call()
+
+  t.is(num, 419)
+
+  /*
+  const { abi } = require('./compile');
+
+// Initialization
+const privKey =
+   '99B3C12287537E38C90A9219D4CB074A89A16E9CDB20BF85728EBD97C343E342'; // Genesis private key
+const address = '0x6Be02d1d3665660d22FF9624b7BE0551ee1Ac91b';
+const web3 = new Web3('http://localhost:9933');
+const contractAddress = '0xC2Bf5F29a4384b1aB0C063e1c666f02121B6084a';
+const _value = 3;
+
+// Contract Tx
+const incrementer = new web3.eth.Contract(abi, contractAddress);
+const incrementTx = incrementer.methods.increment(_value);
+
+const increment = async () => {
+   console.log(
+      `Calling the increment by ${_value} function in contract at address ${contractAddress}`
+   );
+   const createTransaction = await web3.eth.accounts.signTransaction(
+      {
+         from: address,
+         to: contractAddress,
+         data: incrementTx.encodeABI(),
+         gas: await incrementTx.estimateGas(),
+      },
+      privKey
+   );
+
+   const createReceipt = await web3.eth.sendSignedTransaction(
+      createTransaction.rawTransaction
+   );
+   console.log(`Tx successfull with hash: ${createReceipt.transactionHash}`);
+};
+
+increment(); 
+  */
 
   t.end()
 })

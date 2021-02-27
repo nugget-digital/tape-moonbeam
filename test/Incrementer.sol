@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.4;
+pragma solidity ^0.8.0;
 
 contract Incrementer {
     uint256 public number;
 
-    constructor(uint256 _initialNumber) public {
+    constructor(uint256 _initialNumber) {
         number = _initialNumber;
     }
 

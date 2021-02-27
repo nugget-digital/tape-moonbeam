@@ -16,15 +16,15 @@
   "author": "Noah Anabiik Schwarz <noah.anabiik.schwarz@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nuggetdigital/tape-parity/issues"
+    "url": "https://github.com/nuggetdigital/tape-moonbeam/issues"
   },
-  "homepage": "https://github.com/nuggetdigital/tape-parity#readme",
+  "homepage": "https://github.com/nuggetdigital/tape-moonbeam#readme",
   "publishConfig": {
     "access": "public"
   },
   "main": "index.js",
   "bin": {
-    "tape-parity": "./bin/tape-moonbeam"
+    "tape-moonbeam": "./bin/tape-moonbeam"
   },
   "scripts": {
     "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './**/*.js'",
@@ -40,7 +40,7 @@
     "web3": "1.3.4"
   },
   "tape-moonbeam": {
-    "customTypes":{},
+    "customTypes": {},
     "execPath": ""
   }
 }
