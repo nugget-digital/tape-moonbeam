@@ -4,26 +4,20 @@ var duplexify = require("duplexify")
 var tape = require("tape")
 var Result = require("tape/lib/results")
 var moonbeam = require("./lib/moonbeam")
+var compile = require("./lib/compile")()
 
-let customTypes
-let exec
-
-if (fs.existsSync("./.tape-moonbeam.json")) {
-  var config = require("./.tape-moonbeam.json")
-  customTypes = config.CUSTOM_TYPES || {}
-  exec = config.NODE_EXEC || require("moonbeam-binary")
-} else {
-  customTypes = {}
-  exec = require("moonbeam-binary")
-}
+var opts = {}
+var pkg = process.cwd() + "/package.json"
+var config = fs.existsSync(pkg) ? require(pkg)["tape-moonbeam"] || {} : {}
+opts.customTypes = config.customTypes || {}
+opts.exec = config.execPath || require("moonbeam-binary")
 
 var _createStream = Result.prototype.createStream
 
 Result.prototype.createStream = function (...args) {
   var duplex = duplexify()
 
-  moonbeam(
-    async web3 => {
+  moonbeam(async web3 => {
       tape.Test.prototype.web3 = web3
 
       duplex.setReadable(_createStream.call(this, ...args))
@@ -41,7 +35,7 @@ Result.prototype.createStream = function (...args) {
 
 // pollute
 
-tape.Test.prototype.fraud = null
+tape.Test.prototype.compile = compile
 
 // tape.Test.prototype.fund = async function fund(to, value, data) {
 //   assert(to != null, "to must be given")
