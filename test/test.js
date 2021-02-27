@@ -1,4 +1,4 @@
-var test = require(".")
+var test = require("..")
 
 test("alice transfers to bob", async t => {
   var privKey =
@@ -19,4 +19,6 @@ test("alice transfers to bob", async t => {
   var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
 
   t.ok(receipt.transactionHash)
+
+  t.end()
 })

@@ -41,6 +41,8 @@ Result.prototype.createStream = function (...args) {
 
 // pollute
 
+tape.Test.prototype.fraud = null
+
 // tape.Test.prototype.fund = async function fund(to, value, data) {
 //   assert(to != null, "to must be given")
 //   assert(value != null, "value must be given")

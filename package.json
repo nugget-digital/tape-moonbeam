@@ -1,11 +1,38 @@
 {
+  "name": "tape-moonbeam",
+  "version": "0.6.0",
+  "description": "tape extension that spins up and connects to moonbeam dev chains",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuggetdigital/tape-moonbeam.git"
+  },
+  "keywords": [
+    "moonbeam",
+    "tape",
+    "testing",
+    "blockchain",
+    "substrate"
+  ],
+  "author": "Noah Anabiik Schwarz <noah.anabiik.schwarz@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nuggetdigital/tape-parity/issues"
+  },
+  "homepage": "https://github.com/nuggetdigital/tape-parity#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "index.js",
+  "bin": {
+    "tape-parity": "./bin/tape-moonbeam"
+  },
   "scripts": {
     "fmt": "npx prettier --no-semi --arrow-parens avoid --trailing-comma none --print-width 80 --write './**/*.js'",
-    "test": "node ./test.js"
+    "test": "node ./test/test.js"
   },
   "dependencies": {
     "duplexify": "4.1.1",
-    "moonbeam-binary": "nugget-digital/moonbeam-binary",
+    "moonbeam-binary": "nuggetdigital/moonbeam-binary#v0.6.0",
     "nanoassert": "2.0.0",
     "newline-decoder": "1.0.0",
     "solc": "0.8.1",
