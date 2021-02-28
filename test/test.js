@@ -18,7 +18,7 @@ tape.skip("alice transfers to bob", async t => {
   t.end()
 })
 
-tape("web3 listin accounts", async t => {
+tape.only("web3 listin accounts", async t => {
   var accounts = await t.web3.eth.getAccounts()
   console.log(accounts)
 })
@@ -30,11 +30,13 @@ tape("deployin & interactin with the incrementer contract", async t => {
     initParams: { types: ["uint256"], values: [initValue] }
   })
 
+  t.comment(artifact.bytecode)
+
   var contract = await t.deploy(artifact)
 
   t.comment(contract.options.address)
 
-  var num = await contract.methods.number().call()
+  var num = Number(await contract.methods.number().call())
 
   t.equal(num, initValue)
 

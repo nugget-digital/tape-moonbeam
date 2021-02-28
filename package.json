@@ -41,10 +41,21 @@
     "web3": "1.3.4"
   },
   "tape-moonbeam": {
-    "customTypes": {},
-    "execPath": "",
+    "execPath": null,
     "port": 19419,
     "rpcPort": 19420,
-    "wsPort": 19421
+    "wsPort": 19421,
+    "maxStartMs": 1000,
+    "argv":  [
+      "--execution=Native",
+      "--no-telemetry",
+      "--no-prometheus",
+      "--dev",
+      "--sealing=manual",
+      "--port=19419",
+      "--rpc-port=19420",
+      "--ws-port=19421",
+      "--tmp"
+    ]
   }
 }
