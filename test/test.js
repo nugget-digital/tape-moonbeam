@@ -1,21 +1,26 @@
 var tape = require("..")
 
-tape("alice transfers to bob", async t => {
-  var tx = await t.web3.eth.accounts.signTransaction(
-    {
-      from: t.genesis.address,
-      to: "0x44236223aB4291b93EEd10E4B511B37a398DEE55",
-      value: t.web3.utils.toWei("100", "ether"),
-      gas: 21000
-    },
-    t.genesis.privateKey
-  )
+// tape("alice transfers to bob", async t => {
+//   var tx = await t.web3.eth.accounts.signTransaction(
+//     {
+//       from: t.genesis.address,
+//       to: "0x44236223aB4291b93EEd10E4B511B37a398DEE55",
+//       value: t.web3.utils.toWei("100", "ether"),
+//       gas: 21000
+//     },
+//     t.genesis.privateKey
+//   )
 
-  var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
+//   var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
 
-  t.ok(receipt.transactionHash)
+//   t.ok(receipt.transactionHash)
 
-  t.end()
+//   t.end()
+// })
+
+tape("listin accounts", async t => {
+  var accounts = await t.web3.eth.getAccounts()
+  console.log(accounts)
 })
 
 tape("deployin & interactin with the incrementer contract", async t => {
