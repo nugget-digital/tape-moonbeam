@@ -11,14 +11,12 @@ tape("alice transfers into the void", async t => {
     t.genesis.privateKey
   )
 
-  var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
+  var receipt = await t.mined(tx)
 
-  t.ok(receipt.transactionHash)
-
-  t.end()
+  t.true(/^0x[0-9a-fA-F]{64}$/.test(receipt.transactionHash), "receipt tx hash")
 })
 
-tape.only("deployin & interactin with the incrementer contract", async t => {
+tape("deployin & interactin with the incrementer contract", async t => {
   var initValue = 0x1a3
 
   var artifact = await t.compile(require.resolve("./Incrementer.sol"), {
@@ -34,45 +32,17 @@ tape.only("deployin & interactin with the incrementer contract", async t => {
 
   var num = Number(await contract.methods.number().call())
 
-  t.equal(num, initValue, "numbers equal")
+  t.equal(num, initValue, "num equals init value")
 
-  /*
-  const { abi } = require('./compile');
+  // await contract.methods.increment(1).call()
 
-// Initialization
-const privKey =
-   '99B3C12287537E38C90A9219D4CB074A89A16E9CDB20BF85728EBD97C343E342'; // Genesis private key
-const address = '0x6Be02d1d3665660d22FF9624b7BE0551ee1Ac91b';
-const web3 = new Web3('http://localhost:9933');
-const contractAddress = '0xC2Bf5F29a4384b1aB0C063e1c666f02121B6084a';
-const _value = 3;
+  // num = Number(await contract.methods.number().call())
 
-// Contract Tx
-const incrementer = new web3.eth.Contract(abi, contractAddress);
-const incrementTx = incrementer.methods.increment(_value);
+  // t.equal(num, initValue+1, "num equals init value+1")
 
-const increment = async () => {
-   console.log(
-      `Calling the increment by ${_value} function in contract at address ${contractAddress}`
-   );
-   const createTransaction = await web3.eth.accounts.signTransaction(
-      {
-         from: address,
-         to: contractAddress,
-         data: incrementTx.encodeABI(),
-         gas: await incrementTx.estimateGas(),
-      },
-      privKey
-   );
+  // await contract.methods.reset().call()
 
-   const createReceipt = await web3.eth.sendSignedTransaction(
-      createTransaction.rawTransaction
-   );
-   console.log(`Tx successfull with hash: ${createReceipt.transactionHash}`);
-};
+  // num = Number(await contract.methods.number().call())
 
-increment(); 
-  */
-
-  // t.end()
+  // t.equal(num, 0, "num equals zero")
 })

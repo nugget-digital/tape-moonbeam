@@ -64,6 +64,13 @@ tape.Test.prototype.genesis = Object.freeze({
   privateKey: "99b3c12287537e38c90a9219d4cb074a89a16e9cdb20bf85728ebd97c343e342"
 })
 
+tape.Test.prototype.mined = async function mined(tx) {
+  var promises = [this.papi.rpc.engine.createBlock(true, true)]
+  if (tx) promises.push(this.web3.eth.sendSignedTransaction(tx.rawTransaction))
+  var [_, receipt] = await Promise.all(promises)
+  if (tx) return receipt
+}
+
 tape.Test.prototype.deploy = function deploy(
   artifact,
   from = this.genesis.address,
