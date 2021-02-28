@@ -34,13 +34,13 @@ tape("deployin & interactin with the incrementer contract", async t => {
 
   t.equal(num, initValue, "num equals init value")
 
-  // await contract.methods.increment(1).call()
+  // TODO increment
 
   // num = Number(await contract.methods.number().call())
 
   // t.equal(num, initValue+1, "num equals init value+1")
 
-  // await contract.methods.reset().call()
+  // TODO reset
 
   // num = Number(await contract.methods.number().call())
 

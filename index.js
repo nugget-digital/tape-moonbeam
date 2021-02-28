@@ -120,6 +120,45 @@ tape.Test.prototype.deploy = function deploy(
     )
 }
 
+tape.Test.prototype.send = function send(
+  {
+    from,
+    to,
+    data,
+    value =  "0x00",
+    gasPrice =  "0x01",
+    gas= "0x100000"
+  },
+  privateKey
+) {
+  return this.web3.eth.accounts
+    .signTransaction(
+      {
+        from,
+        to,
+        data,
+        value,
+        gasPrice,
+        gas,
+      },
+      privateKey
+    )
+    .then(
+      tx =>
+        new Promise((resolve, reject) =>
+          this.web3.currentProvider.send(
+            {
+              jsonrpc: "2.0",
+              id: 1,
+              method: "eth_sendRawTransaction",
+              params: [tx.rawTransaction]
+            },
+            (err, _response) => err ? reject(err) : resolve(tx)
+          )
+        )
+    )
+}
+
 // tape.Test.prototype.fund = async function fund(to, value, data) {
 //   assert(to != null, "to must be given")
 //   assert(value != null, "value must be given")
