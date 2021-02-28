@@ -45,7 +45,7 @@
     "port": 19419,
     "rpcPort": 19420,
     "wsPort": 19421,
-    "maxStartMs": 1000,
+    "maxStartMs": 2000,
     "argv":  [
       "--execution=Native",
       "--no-telemetry",

@@ -1,6 +1,6 @@
 var tape = require("..")
 
-tape.skip("alice transfers to bob", async t => {
+tape("alice transfers into the void", async t => {
   var tx = await t.web3.eth.accounts.signTransaction(
     {
       from: t.genesis.address,
@@ -18,27 +18,23 @@ tape.skip("alice transfers to bob", async t => {
   t.end()
 })
 
-tape.only("web3 listin accounts", async t => {
-  var accounts = await t.web3.eth.getAccounts()
-  console.log(accounts)
-})
-
-tape("deployin & interactin with the incrementer contract", async t => {
+tape.only("deployin & interactin with the incrementer contract", async t => {
   var initValue = 0x1a3
 
   var artifact = await t.compile(require.resolve("./Incrementer.sol"), {
     initParams: { types: ["uint256"], values: [initValue] }
   })
 
-  t.comment(artifact.bytecode)
-
   var contract = await t.deploy(artifact)
 
-  t.comment(contract.options.address)
+  t.true(
+    /^0x[0-9a-fA-F]{40}$/.test(contract.options.address),
+    "contract address"
+  )
 
   var num = Number(await contract.methods.number().call())
 
-  t.equal(num, initValue)
+  t.equal(num, initValue, "numbers equal")
 
   /*
   const { abi } = require('./compile');

@@ -13,7 +13,8 @@ var opts = {
   execPath: config.execPath || require("moonbeam-binary"),
   port: config.port || 19419,
   rpcPort: config.rpcPort || 19420,
-  wsPort: config.wsPort || 19421
+  wsPort: config.wsPort || 19421,
+  maxStartMs: config.maxStartMs || 2000
 }
 opts.argv = config.argv || [
   `--execution=Native`, // faster
