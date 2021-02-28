@@ -79,18 +79,19 @@ tape.Test.prototype.deploy = function deploy(
               err
                 ? reject(err)
                 : resolve(
-                    this.api.rpc.engine.createBlock(true, true).then(() =>
-                      this.web3.eth
-                        .getTransactionReceipt(tx.transactionHash)
-                        .then(rcpt => {
-                          var contract = new this.web3.eth.Contract(
-                            artifact.abi,
-                            rcpt.contractAddress
+                    this.api.rpc.engine
+                      .createBlock(true, true)
+                      .then(() =>
+                        this.web3.eth
+                          .getTransactionReceipt(tx.transactionHash)
+                          .then(
+                            receipt =>
+                              new this.web3.eth.Contract(
+                                artifact.abi,
+                                receipt.contractAddress
+                              )
                           )
-                          contract.options.address = receipt.contractAddress
-                          return contract
-                        })
-                    )
+                      )
                   )
           )
         )

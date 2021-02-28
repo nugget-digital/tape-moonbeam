@@ -25,9 +25,11 @@ tape("web3 listin accounts", async t => {
 
 tape("deployin & interactin with the incrementer contract", async t => {
   var initValue = 0x1a3
+
   var artifact = await t.compile(require.resolve("./Incrementer.sol"), {
-    initParams: { types: ["number"], values: [initValue] }
+    initParams: { types: ["uint256"], values: [initValue] }
   })
+
   var contract = await t.deploy(artifact)
 
   t.comment(contract.options.address)
