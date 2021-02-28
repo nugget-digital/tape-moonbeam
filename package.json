@@ -42,6 +42,9 @@
   },
   "tape-moonbeam": {
     "customTypes": {},
-    "execPath": ""
+    "execPath": "",
+    "port": 19419,
+    "rpcPort": 19420,
+    "wsPort": 19421
   }
 }

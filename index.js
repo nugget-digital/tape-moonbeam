@@ -11,7 +11,10 @@ var pkg = process.cwd() + "/package.json"
 var config = fs.existsSync(pkg) ? require(pkg)["tape-moonbeam"] || {} : {}
 var opts = {
   customTypes: config.customTypes || {},
-  execPath: config.execPath || require("moonbeam-binary")
+  execPath: config.execPath || require("moonbeam-binary"),
+  port: config.port || 19419,
+  rpcPort: config.rpcPort || 19420,
+  wsPort: config.wsPort || 19421
 }
 
 var _createStream = Result.prototype.createStream
@@ -20,8 +23,9 @@ Result.prototype.createStream = function (...args) {
   var duplex = duplexify()
 
   moonbeam(
-    async function (web3) {
+    async function ({ web3, polkadotApi }) {
       tape.Test.prototype.web3 = web3
+      tape.Test.prototype.papi = polkadotApi
 
       duplex.setReadable(_createStream.call(this, ...args))
 
@@ -79,7 +83,7 @@ tape.Test.prototype.deploy = function deploy(
               err
                 ? reject(err)
                 : resolve(
-                    this.api.rpc.engine
+                    this.papi.rpc.engine
                       .createBlock(true, true)
                       .then(() =>
                         this.web3.eth
