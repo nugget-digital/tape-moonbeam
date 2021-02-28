@@ -3,12 +3,12 @@ var tape = require("..")
 tape("alice transfers to bob", async t => {
   var tx = await t.web3.eth.accounts.signTransaction(
     {
-      from: tape.genesis.address,
+      from: t.genesis.address,
       to: "0x44236223aB4291b93EEd10E4B511B37a398DEE55",
       value: t.web3.utils.toWei("100", "ether"),
       gas: 21000
     },
-    tape.genesis.privateKey
+    t.genesis.privateKey
   )
 
   var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
@@ -19,17 +19,18 @@ tape("alice transfers to bob", async t => {
 })
 
 tape("deployin & interactin with the incrementer contract", async t => {
+  var input = 419
   var artifact = await t.compile(require.resolve("./Incrementer.sol"))
-  var contract = new web3.eth.Contract(artifact.abi)
+  var contract = new t.web3.eth.Contract(artifact.abi)
 
   var address = await contract
-    .deploy({ data: artifact.bytecode, arguments: [419] })
-    .send({ from: t.genesis.from })
+    .deploy({ data: artifact.bytecode, arguments: [input] })
+    .send({ from: t.genesis.address })
     .then(instance => instance.options.address)
 
   var num = await contract.methods.number().call()
 
-  t.is(num, 419)
+  t.equal(num, input)
 
   /*
   const { abi } = require('./compile');

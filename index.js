@@ -28,7 +28,7 @@ Result.prototype.createStream = function (...args) {
       EventEmitter.once(this, "done"),
       EventEmitter.once(this, "fail")
     ])
-  }, opts).catch(duplex.destroy.bind(duplex))
+  }.bind(this), opts).catch(duplex.destroy.bind(duplex))
 
   return duplex
 }
