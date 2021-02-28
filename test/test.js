@@ -1,41 +1,40 @@
 var tape = require("..")
 
-// tape("alice transfers to bob", async t => {
-//   var tx = await t.web3.eth.accounts.signTransaction(
-//     {
-//       from: t.genesis.address,
-//       to: "0x44236223aB4291b93EEd10E4B511B37a398DEE55",
-//       value: t.web3.utils.toWei("100", "ether"),
-//       gas: 21000
-//     },
-//     t.genesis.privateKey
-//   )
+tape.skip("alice transfers to bob", async t => {
+  var tx = await t.web3.eth.accounts.signTransaction(
+    {
+      from: t.genesis.address,
+      to: "0x44236223aB4291b93EEd10E4B511B37a398DEE55",
+      value: t.web3.utils.toWei("100", "ether"),
+      gas: 21000
+    },
+    t.genesis.privateKey
+  )
 
-//   var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
+  var receipt = await t.web3.eth.sendSignedTransaction(tx.rawTransaction)
 
-//   t.ok(receipt.transactionHash)
+  t.ok(receipt.transactionHash)
 
-//   t.end()
-// })
+  t.end()
+})
 
-tape("listin accounts", async t => {
+tape("web3 listin accounts", async t => {
   var accounts = await t.web3.eth.getAccounts()
   console.log(accounts)
 })
 
 tape("deployin & interactin with the incrementer contract", async t => {
-  var input = 419
-  var artifact = await t.compile(require.resolve("./Incrementer.sol"))
-  var contract = new t.web3.eth.Contract(artifact.abi)
+  var initValue = 0x1a3
+  var artifact = await t.compile(require.resolve("./Incrementer.sol"), {
+    initParams: { types: ["number"], values: [initValue] }
+  })
+  var contract = await t.deploy(artifact)
 
-  var address = await contract
-    .deploy({ data: artifact.bytecode, arguments: [input] })
-    .send({ from: t.genesis.address })
-    .then(instance => instance.options.address)
+  t.comment(contract.options.address)
 
   var num = await contract.methods.number().call()
 
-  t.equal(num, input)
+  t.equal(num, initValue)
 
   /*
   const { abi } = require('./compile');
@@ -75,5 +74,5 @@ const increment = async () => {
 increment(); 
   */
 
-  t.end()
+  // t.end()
 })

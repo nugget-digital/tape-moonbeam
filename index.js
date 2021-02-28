@@ -19,16 +19,19 @@ var _createStream = Result.prototype.createStream
 Result.prototype.createStream = function (...args) {
   var duplex = duplexify()
 
-  moonbeam(async function (web3) {
-    tape.Test.prototype.web3 = web3
+  moonbeam(
+    async function (web3) {
+      tape.Test.prototype.web3 = web3
 
-    duplex.setReadable(_createStream.call(this, ...args))
+      duplex.setReadable(_createStream.call(this, ...args))
 
-    await Promise.race([
-      EventEmitter.once(this, "done"),
-      EventEmitter.once(this, "fail")
-    ])
-  }.bind(this), opts).catch(duplex.destroy.bind(duplex))
+      await Promise.race([
+        EventEmitter.once(this, "done"),
+        EventEmitter.once(this, "fail")
+      ])
+    }.bind(this),
+    opts
+  ).catch(duplex.destroy.bind(duplex))
 
   return duplex
 }
@@ -37,6 +40,8 @@ Result.prototype.createStream = function (...args) {
 tape.compile = compile
 
 // pollute some more - put everything else on t...
+tape.Test.prototype.falsy = tape.Test.prototype.false
+tape.Test.prototype.truthy = tape.Test.prototype.true
 tape.Test.prototype.compile = compile
 
 tape.Test.prototype.genesis = Object.freeze({
@@ -44,24 +49,53 @@ tape.Test.prototype.genesis = Object.freeze({
   privateKey: "99b3c12287537e38c90a9219d4cb074a89a16e9cdb20bf85728ebd97c343e342"
 })
 
-// tape.Test.prototype.contract = function contract(contractPath) {
-//   var artifact = await compile(contractPath)
-//   return  new web3.eth.Contract(artifact.abi)
-// }
-
-// tape.Test.prototype.deploy = async function deploy({from, data, args = []}) {
-//   assert(from, "from address must be given")
-//   assert(data, "data must be given")
-//   // if not bytecode but a contract path
-//   if (typeof data === "string" && !/[0-9a-f]+/.test(data)) data= await compile(data)
-//   // if (typeof artifact === "string") artifact = await compile(artifact)
-
-// var tx = data instanceof web3.eth.Contract ?  data .deploy({ arguments: args }) :  new web3.eth.Contract(data.abi) .deploy({ data: data.bytecode, arguments: args })
-// }) :  new web3.eth.Contract(data.abi)
-//  .deploy({ data: data.bytecode, arguments: args })  .send({ from })
-//   return tx    .send({ from })
-//   .then(instance => instance.options.address)
-// }
+tape.Test.prototype.deploy = function deploy(
+  artifact,
+  from = this.genesis.address,
+  privateKey = this.genesis.privateKey
+) {
+  return this.web3.eth.accounts
+    .signTransaction(
+      {
+        from,
+        data: artifact.bytecode,
+        value: "0x00",
+        gasPrice: "0x01",
+        gas: "0x100000"
+      },
+      privateKey
+    )
+    .then(
+      tx =>
+        new Promise((resolve, reject) =>
+          this.web3.currentProvider.send(
+            {
+              jsonrpc: "2.0",
+              id: 1,
+              method: "eth_sendRawTransaction",
+              params: [tx.rawTransaction]
+            },
+            (err, _response) =>
+              err
+                ? reject(err)
+                : resolve(
+                    this.api.rpc.engine.createBlock(true, true).then(() =>
+                      this.web3.eth
+                        .getTransactionReceipt(tx.transactionHash)
+                        .then(rcpt => {
+                          var contract = new this.web3.eth.Contract(
+                            artifact.abi,
+                            rcpt.contractAddress
+                          )
+                          contract.options.address = receipt.contractAddress
+                          return contract
+                        })
+                    )
+                  )
+          )
+        )
+    )
+}
 
 // tape.Test.prototype.fund = async function fund(to, value, data) {
 //   assert(to != null, "to must be given")
