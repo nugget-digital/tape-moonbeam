@@ -33,7 +33,7 @@
   "dependencies": {
     "@polkadot/api": "3.10.2",
     "duplexify": "4.1.1",
-    "methid": "file:../methid",
+    "methid": "chiefbiiko/methid",
     "moonbeam-binary": "nuggetdigital/moonbeam-binary#v0.6.0",
     "nanoassert": "2.0.0",
     "newline-decoder": "1.0.0",
