@@ -33,8 +33,7 @@ var _createStream = Result.prototype.createStream
 Result.prototype.createStream = function (...args) {
   var duplex = duplexify()
 
-  moonbeam(
-    async function ({ web3, papi }) {
+  moonbeam(async ({ web3, papi }) => {
       tape.Test.prototype.web3 = web3
       tape.Test.prototype.papi = papi
 
@@ -44,9 +43,9 @@ Result.prototype.createStream = function (...args) {
         EventEmitter.once(this, "done"),
         EventEmitter.once(this, "fail")
       ])
-    }.bind(this),
+    },
     opts
-  ).catch(duplex.destroy.bind(duplex))
+  ).catch(err => duplex.destroy(err))
 
   return duplex
 }

@@ -36,6 +36,13 @@ tape("deployin & interactin with the incrementer contract", async t => {
 
   // TODO increment
 
+  // var tx = await t.send({
+  //   to: contract.options.address,
+  //   data:  contract.increment.getData([0x01])
+  // }, t.genesis.privateKey)
+
+  // var _ = await t.mined(tx)
+
   // num = Number(await contract.methods.number().call())
 
   // t.equal(num, initValue+1, "num equals init value+1")
