@@ -34,18 +34,16 @@ Result.prototype.createStream = function (...args) {
   var duplex = duplexify()
 
   moonbeam(async ({ web3, papi }) => {
-      tape.Test.prototype.web3 = web3
-      tape.Test.prototype.papi = papi
+    tape.Test.prototype.web3 = web3
+    tape.Test.prototype.papi = papi
 
-      duplex.setReadable(_createStream.call(this, ...args))
+    duplex.setReadable(_createStream.call(this, ...args))
 
-      await Promise.race([
-        EventEmitter.once(this, "done"),
-        EventEmitter.once(this, "fail")
-      ])
-    },
-    opts
-  ).catch(err => duplex.destroy(err))
+    await Promise.race([
+      EventEmitter.once(this, "done"),
+      EventEmitter.once(this, "fail")
+    ])
+  }, opts).catch(err => duplex.destroy(err))
 
   return duplex
 }
@@ -71,7 +69,7 @@ tape.Test.prototype.mined = async function mined(tx) {
 }
 
 tape.Test.prototype.deploy = function deploy(
-  artifact,
+  artifacts,
   from = this.genesis.address,
   privateKey = this.genesis.privateKey
 ) {
@@ -79,7 +77,7 @@ tape.Test.prototype.deploy = function deploy(
     .signTransaction(
       {
         from,
-        data: artifact.bytecode,
+        data: artifacts.bytecode,
         value: "0x00",
         gasPrice: "0x01",
         gas: "0x100000"
@@ -108,7 +106,7 @@ tape.Test.prototype.deploy = function deploy(
                           .then(
                             receipt =>
                               new this.web3.eth.Contract(
-                                artifact.abi,
+                                artifacts.abi,
                                 receipt.contractAddress
                               )
                           )
@@ -120,14 +118,7 @@ tape.Test.prototype.deploy = function deploy(
 }
 
 tape.Test.prototype.send = function send(
-  {
-    from,
-    to,
-    data,
-    value =  "0x00",
-    gasPrice =  "0x01",
-    gas= "0x100000"
-  },
+  { from, to, data, value = "0x00", gasPrice = "0x01", gas = "0x100000" },
   privateKey
 ) {
   return this.web3.eth.accounts
@@ -138,7 +129,7 @@ tape.Test.prototype.send = function send(
         data,
         value,
         gasPrice,
-        gas,
+        gas
       },
       privateKey
     )
@@ -152,7 +143,7 @@ tape.Test.prototype.send = function send(
               method: "eth_sendRawTransaction",
               params: [tx.rawTransaction]
             },
-            (err, _response) => err ? reject(err) : resolve(tx)
+            (err, _response) => (err ? reject(err) : resolve(tx))
           )
         )
     )
