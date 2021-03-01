@@ -99,17 +99,25 @@ tape.Test.prototype.keygen = function keygen(entropy) {
 }
 
 tape.Test.prototype.balance = async function balance(address) {
-  return BigInt(await this.web3.eth.getBalance(address))
+  assert(address != null, "address must be given")
+
+  var balance = await this.web3.eth.getBalance(address)
+
+  return BigInt(balance)
 }
 
-tape.Test.prototype.transfer = function transfer(
+tape.Test.prototype.transfer = async function transfer(
   { value, to, ...params },
   privateKey
 ) {
   assert(value, "params.value must be given")
   assert(to, "params.to must be given")
+  assert(privateKey, "privateKey must be given")
+
   if (typeof value === "bigint") value = value.toString()
-  var tx = this.send({ value, to, ...params }, privateKey)
+
+  var tx = await this.send({ value, to, ...params }, privateKey)
+
   return this.mined(tx)
 }
 
@@ -118,6 +126,12 @@ tape.Test.prototype.deploy = function deploy(
   from = tape.GENESIS.address,
   privateKey = tape.GENESIS.privateKey
 ) {
+  assert(artifacts, "artifacts must be given")
+  assert(artifacts.abi, "artifacts.abi must be given")
+  assert(artifacts.bytecode, "artifacts.bytecode must be given")
+  assert(from, "from must be given")
+  assert(privateKey, "privateKey must be given")
+
   return this.web3.eth.accounts
     .signTransaction(
       {
@@ -166,7 +180,10 @@ tape.Test.prototype.send = function send(
   { from, to, data, value = "0x00", gasPrice = "0x01", gas = "0x100000" },
   privateKey
 ) {
+  assert(privateKey, "privateKey must be given")
+
   if (typeof value === "bigint") value = value.toString()
+
   return this.web3.eth.accounts
     .signTransaction(
       {
