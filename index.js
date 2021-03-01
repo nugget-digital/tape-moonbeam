@@ -51,21 +51,16 @@ Result.prototype.createStream = function (...args) {
 // make compile available for require so that it can be used in global scope
 tape.compile = compile
 
-// pollute some more - put everything else on t...
-tape.Test.prototype.falsy = tape.Test.prototype.false
-tape.Test.prototype.truthy = tape.Test.prototype.true
-tape.Test.prototype.compile = compile
-
-tape.Test.prototype.genesis = Object.freeze({
+// pollute tape
+tape.GENESIS = Object.freeze({
   address: "0x6Be02d1d3665660d22FF9624b7BE0551ee1Ac91b",
   privateKey: "99b3c12287537e38c90a9219d4cb074a89a16e9cdb20bf85728ebd97c343e342"
 })
 
-// TODO
-// await t.fund(address, value, [data])
-// t.transfer ({ to, value })
-// const account = await t.keygen([privateKey])
-// const account = await t.keygenSeed(seed)
+// now pollute t...
+tape.Test.prototype.falsy = tape.Test.prototype.false
+tape.Test.prototype.truthy = tape.Test.prototype.true
+tape.Test.prototype.compile = compile
 
 tape.Test.prototype.mined = async function mined(tx) {
   var promises = [this.papi.rpc.engine.createBlock(true, true)]
@@ -74,10 +69,54 @@ tape.Test.prototype.mined = async function mined(tx) {
   if (tx) return receipt
 }
 
+tape.Test.prototype.fund = async function fund(to, value, data) {
+  assert(to != null, "to must be given")
+  assert(value != null, "value must be given")
+
+  if (typeof value === "bigint") value = value.toString()
+
+  var tx = await this.send(
+    {
+      from: tape.GENESIS.address,
+      to,
+      value: value,
+      gasPrice: 1,
+      gas: 8000000,
+      data
+    },
+    tape.GENESIS.privateKey
+  )
+
+  return await this.mined(tx)
+}
+
+tape.Test.prototype.toWei = function toWei(...args) {
+  return BigInt(this.web3.utils.toWei(...args))
+}
+
+tape.Test.prototype.keygen = function keygen(entropy) {
+  return this.web3.eth.accounts.create(entropy)
+}
+
+tape.Test.prototype.balance = async function balance(address) {
+  return BigInt(await this.web3.eth.getBalance(address))
+}
+
+tape.Test.prototype.transfer = function transfer(
+  { value, to, ...params },
+  privateKey
+) {
+  assert(value, "params.value must be given")
+  assert(to, "params.to must be given")
+  if (typeof value === "bigint") value = value.toString()
+  var tx = this.send({ value, to, ...params }, privateKey)
+  return this.mined(tx)
+}
+
 tape.Test.prototype.deploy = function deploy(
   artifacts,
-  from = this.genesis.address,
-  privateKey = this.genesis.privateKey
+  from = tape.GENESIS.address,
+  privateKey = tape.GENESIS.privateKey
 ) {
   return this.web3.eth.accounts
     .signTransaction(
@@ -127,6 +166,7 @@ tape.Test.prototype.send = function send(
   { from, to, data, value = "0x00", gasPrice = "0x01", gas = "0x100000" },
   privateKey
 ) {
+  if (typeof value === "bigint") value = value.toString()
   return this.web3.eth.accounts
     .signTransaction(
       {
@@ -154,94 +194,5 @@ tape.Test.prototype.send = function send(
         )
     )
 }
-
-// tape.Test.prototype.fund = async function fund(to, value, data) {
-//   assert(to != null, "to must be given")
-//   assert(value != null, "value must be given")
-
-//   var txHash = await this.send(
-//     {
-//       from: address,
-//       to,
-//       value: value,
-//       gasPrice: 1,
-//       gas: 8000000n,
-//       data
-//     },
-//     privateKey
-//   )
-
-//   return await this.mined(txHash)
-// }
-
-// tape.Test.prototype.mined = async function mined(tx) {
-//   assert(tx != null, "tx must be given")
-
-//   // eslint-disable-next-line
-//   return new Promise(async (resolve, reject) => {
-//     const unlisten = await this.eth.subscribe(
-//       this.eth.getTransactionReceipt(tx),
-//       function (err, res) {
-//         if (err) return
-
-//         unlisten()
-//         if (helpers.utils.parse.boolean(res.status) === true)
-//           return resolve(res)
-//         return reject(new Error(res))
-//       }
-//     )
-//   })
-// }
-
-// tape.Test.prototype.keygen = async function keygen(privateKey) {
-//   return ethKeygen(
-//     privateKey,
-//     helpers.utils.parse.number(await this.eth.chainId())
-//   )
-// }
-
-// tape.Test.prototype.keygenSeed = async function keygenSeed(seed) {
-//   assert(seed != null, "seed must be given")
-
-//   const privateKey = Buffer.alloc(32)
-//   sodium.crypto_generichash(privateKey, Buffer.from(seed))
-
-//   return ethKeygen(
-//     privateKey,
-//     helpers.utils.parse.number(await this.eth.chainId())
-//   )
-// }
-
-// tape.Test.prototype.sign = async function sign(
-//   { from, to, value = 0, data, gas = 8e6, gasPrice = 1, nonce },
-//   privateKey
-// ) {
-//   assert(privateKey != null, "privateKey must be given")
-
-//   return signer.sign(
-//     {
-//       from: from == null ? undefined : helpers.utils.format(from),
-//       to: to == null ? undefined : helpers.utils.format(to),
-//       value: value == null ? undefined : helpers.utils.format(value),
-//       data: data == null ? undefined : helpers.utils.format(data),
-//       gas: helpers.utils.format(gas),
-//       gasPrice: helpers.utils.format(gasPrice),
-//       nonce:
-//         nonce != null
-//           ? helpers.utils.format(nonce)
-//           : await this.eth.getTransactionCount(
-//               helpers.utils.format(from),
-//               "pending"
-//             )
-//     },
-//     privateKey /*, helpers.utils.parse.number(await this.eth.chainId())*/
-//   )
-// }
-
-// tape.Test.prototype.send = async function send(txObj, privateKey) {
-//   const tx = await this.sign(txObj, privateKey)
-
-//   return this.eth.sendRawTransaction(helpers.utils.format(tx.raw))
-// }
 
 module.exports = tape
