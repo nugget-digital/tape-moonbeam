@@ -61,6 +61,12 @@ tape.Test.prototype.genesis = Object.freeze({
   privateKey: "99b3c12287537e38c90a9219d4cb074a89a16e9cdb20bf85728ebd97c343e342"
 })
 
+// TODO
+// await t.fund(address, value, [data])
+// t.transfer ({ to, value })
+// const account = await t.keygen([privateKey])
+// const account = await t.keygenSeed(seed)
+
 tape.Test.prototype.mined = async function mined(tx) {
   var promises = [this.papi.rpc.engine.createBlock(true, true)]
   if (tx) promises.push(this.web3.eth.sendSignedTransaction(tx.rawTransaction))
