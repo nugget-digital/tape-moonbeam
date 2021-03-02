@@ -33,7 +33,6 @@
   "dependencies": {
     "@polkadot/api": "3.10.2",
     "duplexify": "4.1.1",
-    "methid": "chiefbiiko/methid",
     "moonbeam-binary": "nuggetdigital/moonbeam-binary#v0.6.0",
     "nanoassert": "2.0.0",
     "newline-decoder": "1.0.0",
@@ -46,7 +45,7 @@
     "port": 19419,
     "rpcPort": 19420,
     "wsPort": 19421,
-    "maxStartMs": 2000,
+    "maxStartMs": 3000,
     "argv": [
       "--execution=Native",
       "--no-telemetry",

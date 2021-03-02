@@ -14,7 +14,7 @@ var opts = {
   port: config.port || 19419,
   rpcPort: config.rpcPort || 19420,
   wsPort: config.wsPort || 19421,
-  maxStartMs: config.maxStartMs || 2000
+  maxStartMs: config.maxStartMs || 3000
 }
 opts.argv = config.argv || [
   `--execution=Native`, // faster
@@ -58,37 +58,7 @@ tape.GENESIS = Object.freeze({
 })
 
 // now pollute t...
-tape.Test.prototype.falsy = tape.Test.prototype.false
-tape.Test.prototype.truthy = tape.Test.prototype.true
 tape.Test.prototype.compile = compile
-
-tape.Test.prototype.mined = async function mined(tx) {
-  var promises = [this.papi.rpc.engine.createBlock(true, true)]
-  if (tx) promises.push(this.web3.eth.sendSignedTransaction(tx.rawTransaction))
-  var [_, receipt] = await Promise.all(promises)
-  if (tx) return receipt
-}
-
-tape.Test.prototype.fund = async function fund(to, value, data) {
-  assert(to != null, "to must be given")
-  assert(value != null, "value must be given")
-
-  if (typeof value === "bigint") value = value.toString()
-
-  var tx = await this.send(
-    {
-      from: tape.GENESIS.address,
-      to,
-      value: value,
-      gasPrice: 1,
-      gas: 8000000,
-      data
-    },
-    tape.GENESIS.privateKey
-  )
-
-  return await this.mined(tx)
-}
 
 tape.Test.prototype.toWei = function toWei(...args) {
   return BigInt(this.web3.utils.toWei(...args))
@@ -99,81 +69,11 @@ tape.Test.prototype.keygen = function keygen(entropy) {
 }
 
 tape.Test.prototype.balance = async function balance(address) {
-  assert(address != null, "address must be given")
+  assert(address, "address must be given")
 
   var balance = await this.web3.eth.getBalance(address)
 
   return BigInt(balance)
-}
-
-tape.Test.prototype.transfer = async function transfer(
-  { value, to, ...params },
-  privateKey
-) {
-  assert(value, "params.value must be given")
-  assert(to, "params.to must be given")
-  assert(privateKey, "privateKey must be given")
-
-  if (typeof value === "bigint") value = value.toString()
-
-  var tx = await this.send({ value, to, ...params }, privateKey)
-
-  return this.mined(tx)
-}
-
-tape.Test.prototype.deploy = function deploy(
-  artifacts,
-  from = tape.GENESIS.address,
-  privateKey = tape.GENESIS.privateKey
-) {
-  assert(artifacts, "artifacts must be given")
-  assert(artifacts.abi, "artifacts.abi must be given")
-  assert(artifacts.bytecode, "artifacts.bytecode must be given")
-  assert(from, "from must be given")
-  assert(privateKey, "privateKey must be given")
-
-  return this.web3.eth.accounts
-    .signTransaction(
-      {
-        from,
-        data: artifacts.bytecode,
-        value: "0x00",
-        gasPrice: "0x01",
-        gas: "0x100000"
-      },
-      privateKey
-    )
-    .then(
-      tx =>
-        new Promise((resolve, reject) =>
-          this.web3.currentProvider.send(
-            {
-              jsonrpc: "2.0",
-              id: 1,
-              method: "eth_sendRawTransaction",
-              params: [tx.rawTransaction]
-            },
-            (err, _response) =>
-              err
-                ? reject(err)
-                : resolve(
-                    this.papi.rpc.engine
-                      .createBlock(true, true)
-                      .then(() =>
-                        this.web3.eth
-                          .getTransactionReceipt(tx.transactionHash)
-                          .then(
-                            receipt =>
-                              new this.web3.eth.Contract(
-                                artifacts.abi,
-                                receipt.contractAddress
-                              )
-                          )
-                      )
-                  )
-          )
-        )
-    )
 }
 
 tape.Test.prototype.send = function send(
@@ -210,6 +110,135 @@ tape.Test.prototype.send = function send(
           )
         )
     )
+}
+
+tape.Test.prototype.mined = async function mined(tx) {
+  var promises = [this.papi.rpc.engine.createBlock(true, true)]
+  if (tx) promises.push(this.web3.eth.sendSignedTransaction(tx.rawTransaction))
+  var [_, receipt] = await Promise.all(promises)
+  if (tx) return receipt
+}
+
+tape.Test.prototype.fund = async function fund(to, value, data) {
+  assert(to, "to must be given")
+  assert(value, "value must be given")
+
+  if (typeof value === "bigint") value = value.toString()
+
+  var tx = await this.send(
+    {
+      from: tape.GENESIS.address,
+      to,
+      value: value,
+      gasPrice: 1,
+      gas: 8000000,
+      data
+    },
+    tape.GENESIS.privateKey
+  )
+
+  return await this.mined(tx)
+}
+
+tape.Test.prototype.transfer = async function transfer(
+  { value, to, ...opts },
+  privateKey
+) {
+  assert(value, "params.value must be given")
+  assert(to, "params.to must be given")
+  assert(privateKey, "privateKey must be given")
+
+  if (typeof value === "bigint") value = value.toString()
+
+  var tx = await this.send({ value, to, ...opts }, privateKey)
+
+  return this.mined(tx)
+}
+
+tape.Test.prototype.deploy = function deploy(
+  artifacts,
+  { from = tape.GENESIS.address, ...opts } = {},
+  privateKey = tape.GENESIS.privateKey
+) {
+  assert(artifacts, "artifacts must be given")
+  assert(artifacts.abi, "artifacts.abi must be given")
+  assert(artifacts.bytecode, "artifacts.bytecode must be given")
+  assert(from, "from must be given")
+  assert(privateKey, "privateKey must be given")
+
+  return this.web3.eth.accounts
+    .signTransaction(
+      {
+        value: "0x00",
+        gasPrice: "0x01",
+        gas: "0x100000",
+        ...opts,
+        from,
+        data: artifacts.bytecode
+      },
+      privateKey
+    )
+    .then(
+      tx =>
+        new Promise((resolve, reject) =>
+          this.web3.currentProvider.send(
+            {
+              jsonrpc: "2.0",
+              id: 1,
+              method: "eth_sendRawTransaction",
+              params: [tx.rawTransaction]
+            },
+            (err, _response) =>
+              err
+                ? reject(err)
+                : resolve(
+                    this.papi.rpc.engine
+                      .createBlock(true, true)
+                      .then(() =>
+                        this.web3.eth
+                          .getTransactionReceipt(tx.transactionHash)
+                          .then(
+                            receipt =>
+                              new this.web3.eth.Contract(
+                                artifacts.abi,
+                                receipt.contractAddress
+                              )
+                          )
+                      )
+                  )
+          )
+        )
+    )
+}
+
+tape.Test.prototype.get = async function get(contract, prop, parse) {
+  assert(contract, "contract must be given")
+  assert(prop, "prop must be given")
+
+  var value = await contract.methods[prop]().call()
+
+  return typeof parse === "function" ? parse(value) : value
+}
+
+tape.Test.prototype.invoke = async function invoke(
+  contract,
+  method,
+  args,
+  opts,
+  privateKey = tape.GENESIS.privateKey
+) {
+  assert(contract, "contract must be given")
+  assert(method, "method must be given")
+
+  var args = Array.isArray(args) ? args : args === undefined ? [] : [args]
+  var data = contract.methods[method](...args).encodeABI()
+
+  var tx = await this.send(
+    { ...opts, to: contract.options.address, data },
+    privateKey
+  )
+
+  return this.mined(tx)
 }
 
 module.exports = tape
