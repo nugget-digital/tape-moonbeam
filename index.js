@@ -33,9 +33,9 @@ var _createStream = Result.prototype.createStream
 Result.prototype.createStream = function (...args) {
   var duplex = duplexify()
 
-  moonbeam(async ({ web3, papi }) => {
+  moonbeam(async ({ web3, polkadotApi }) => {
     tape.Test.prototype.web3 = web3
-    tape.Test.prototype.papi = papi
+    tape.Test.prototype.polkadotApi = polkadotApi
 
     duplex.setReadable(_createStream.call(this, ...args))
 
@@ -113,7 +113,7 @@ tape.Test.prototype.send = function send(
 }
 
 tape.Test.prototype.mined = async function mined(tx) {
-  var promises = [this.papi.rpc.engine.createBlock(true, true)]
+  var promises = [this.polkadotApi.rpc.engine.createBlock(true, true)]
   if (tx) promises.push(this.web3.eth.sendSignedTransaction(tx.rawTransaction))
   var [_, receipt] = await Promise.all(promises)
   if (tx) return receipt
@@ -141,13 +141,14 @@ tape.Test.prototype.fund = async function fund(to, value, data) {
 }
 
 tape.Test.prototype.transfer = async function transfer(
-  { value, to, ...opts },
-  privateKey
+  to, value, 
+  opts,  privateKey = opts
 ) {
   assert(value, "params.value must be given")
   assert(to, "params.to must be given")
   assert(privateKey, "privateKey must be given")
 
+  if (privateKey === opts) opts = {}
   if (typeof value === "bigint") value = value.toString()
 
   var tx = await this.send({ value, to, ...opts }, privateKey)
@@ -192,7 +193,7 @@ tape.Test.prototype.deploy = function deploy(
               err
                 ? reject(err)
                 : resolve(
-                    this.papi.rpc.engine
+                    this.polkadotApi.rpc.engine
                       .createBlock(true, true)
                       .then(() =>
                         this.web3.eth
@@ -225,10 +226,12 @@ tape.Test.prototype.invoke = async function invoke(
   method,
   args,
   opts,
-  privateKey = tape.GENESIS.privateKey
+  privateKey = opts || tape.GENESIS.privateKey
 ) {
   assert(contract, "contract must be given")
   assert(method, "method must be given")
+
+  if (privateKey === opts || privateKey === tape.GENESIS.privateKey) opts = {}
 
   var args = Array.isArray(args) ? args : args === undefined ? [] : [args]
   var data = contract.methods[method](...args).encodeABI()

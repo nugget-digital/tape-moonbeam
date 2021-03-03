@@ -34,7 +34,7 @@ tape("transferin 2 biiko", async t => {
   var expected = balance + fundin
 
   var receipt = await t.transfer(
-    { to: biiko.address, value: fundin },
+    biiko.address, fundin,
     tape.GENESIS.privateKey
   )
 
