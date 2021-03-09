@@ -1,6 +1,6 @@
 {
   "name": "tape-moonbeam",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "tape extension that spins up and connects to moonbeam dev chains",
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
   "dependencies": {
     "@polkadot/api": "3.10.2",
     "duplexify": "4.1.1",
-    "moonbeam-binary": "nuggetdigital/moonbeam-binary#v0.6.0",
+    "moonbeam-binary": "nuggetdigital/moonbeam-binary#v0.6.1",
     "nanoassert": "2.0.0",
     "newline-decoder": "1.0.0",
     "solc": "0.8.1",

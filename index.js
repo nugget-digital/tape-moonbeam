@@ -24,8 +24,7 @@ opts.argv = config.argv || [
   `--sealing=manual`,
   `--port=${opts.port}`,
   `--rpc-port=${opts.rpcPort}`,
-  `--ws-port=${opts.wsPort}`,
-  `--tmp`
+  `--ws-port=${opts.wsPort}`
 ]
 
 var _createStream = Result.prototype.createStream
@@ -141,8 +140,10 @@ tape.Test.prototype.fund = async function fund(to, value, data) {
 }
 
 tape.Test.prototype.transfer = async function transfer(
-  to, value, 
-  opts,  privateKey = opts
+  to,
+  value,
+  opts,
+  privateKey = opts
 ) {
   assert(value, "params.value must be given")
   assert(to, "params.to must be given")

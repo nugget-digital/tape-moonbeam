@@ -33,10 +33,7 @@ tape("transferin 2 biiko", async t => {
   var fundin = t.toWei("100", "ether")
   var expected = balance + fundin
 
-  var receipt = await t.transfer(
-    biiko.address, fundin,
-    tape.GENESIS.privateKey
-  )
+  var receipt = await t.transfer(biiko.address, fundin, tape.GENESIS.privateKey)
 
   t.true(/^0x[0-9a-fA-F]{64}$/.test(receipt.transactionHash), "receipt tx hash")
 
@@ -52,8 +49,7 @@ tape("deployin the incrementer contract", async t => {
   //   opts.noCache to bypass the compilation cache & force recompilation
   var artifacts = await t.compile(require.resolve("./Incrementer.sol"), {
     // init params are passed to the contract contructor at instantiation
-    initParams: { types: ["uint256"], values: [initValue] },
-    noCache: false
+    initParams: { types: ["uint256"], values: [initValue] }
   })
 
   // deployin a contract on the local dev net
