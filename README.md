@@ -1,10 +1,8 @@
 # tape-moonbeam
 
-run `tape` tests backed by a `moonbeam` dev chain
+Run `tape` tests backed by a `moonbeam` dev chain
 
-absolutely copied from [`tape-parity`](https://github.com/hyperdivision/tape-parity)
-
-### usage 
+### Usage 
 
 ```js
 tape("transferin", async t => {
@@ -23,9 +21,9 @@ tape("transferin", async t => {
 })
 ```
 
-## api
+## API
 
-a fresh Moonbeam dev chain will be created for each test case.
+A fresh Moonbeam dev chain will be created for each test case
 
 ### `test([description], async t => {})`
 
@@ -34,11 +32,11 @@ specified below:
 
 ### `t.web3`
 
-standard `Web3` instance.
+Standard `Web3` instance
 
 ### `t.polkadotApi`
 
-standard `@polkadot/api` `ApiPromise` instance.
+Standard `@polkadot/api` `ApiPromise` instance
 
 ### `const wei = t.toWei("100", "ether")`
 
@@ -46,8 +44,7 @@ Helper from `t.web3.utils` exposed on top level 4 convenience. Returns a `bigint
 
 ### `await t.fund(address, value, [data])`
 
-Fund `address` with `value` wei and optional `data`. Await the transaction to be
-mined. `value` can be `Number`, `BigInt` or hex encoded string.
+Fund `address` with `value` wei and optional `data`. `value` can be `Number`, `BigInt` or hex encoded string. Await the transaction to be mined. Resolves to a transaction receipt.
 
 ### `const receipt = await t.mined(tx)`
 
@@ -59,25 +56,41 @@ Generate a new account. Just a proxy to `t.web3.eth.accounts.create([mnemonic])`
 
 ### `const balance = await t.balance(address)`
 
-Retrieve the balance of given address.Resolves with a `bigint`.
+Retrieve the balance of given address. Resolves to a `bigint`.
 
 ### `t.transfer(address, value, [opts], [privateKey])`
 
-Defaults to the genesis private key.
+Transfer `value` to `address`. `opts` will be passed through to `t.send`. Defaults to the genesis `privateKey`. For convenience you can pass the private key as third argument while omitting options entirely. Resolves to a transaction receipt.
 
 ### `t.compile(contractPath, [opts])`
 
+Compiles a `Solidity` contract @ `contractPath` with `solc` resolving to an `àrtifacts` object that looks like `{ abi, bytecode }`. Setting `opts.noCache` to `true` bypasses the compile cache. `opts.initParams` can be used to pass parameters to contract `constructor`s at instantiation. Example `opts`: 
+
+```js
+{ noCache: false, initParams: { types: ["uint256"], values: [419n] } }
+```
+
 ### `t.deploy(artifacts, [opts], [privateKey])`
 
+Deploys a contract given its compilation `artifacts`. `opts` are merged with `t.web3.eth.accounts.signTransaction`'s options. Use `privateKey` to override the contract creator. Resolves to a `t.web3.eth.Contract` instance.
+
 ### `t.get(contract, prop, [parse])`
+
+Reads `prop` from a `contract`, probably created with `t.deploy`. `parse` can be a function to transform the raw property upon `resolve`, fx `BigInt`.  
+
+### `t.invoke(contract, method, [arg])`
+
+Invoke a `contract`s `method` with optional arguments you may want to send along with your invocation. `arg` can be a single value or an array of arguments. Resolves to a transaction receipt.
 
 ### `const tx = await t.send({ from, to, data, nonce, value = 0, gasPrice = 1, gas = 8e6 }, privateKey)`
 
 Sign and send a new transaction with the above parameters. Note the `privateKey`
-at the end required for signing.
+at the end required for signing. Resolves to a transaction.
 
-Examples:
+## Thanks
 
-* To deploy a contract, send with `{ from, data }`.
-* To transfer funds, send with `{ to, value }`.
-* To call a smart contract, send with `{ to, data }`.
+Derivative of `@emilbayes` [`tape-parity`](https://github.com/hyperdivision/tape-parity)
+
+## License
+
+[MIT](./LICENSE)
