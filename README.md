@@ -10,7 +10,7 @@ Run `tape` tests backed by a `moonbeam` dev chain
 tape("transferin", async t => {
   const bezos = t.keygen()
   const biiko = t.keygen()
-  const share = t.toWei("1000", "ether")
+  const share = t.toWei("100000", "ether")
 
   const receipt = await t.transfer(
     { to: biiko.address, value: share },
@@ -89,9 +89,42 @@ Invoke a `contract`s `method` with optional arguments you may want to send along
 Sign and send a new transaction with the above parameters. Note the `privateKey`
 at the end required for signing. Resolves to a transaction.
 
-## Thanks
+## Config
 
-Derivative of `@emilbayes` [`tape-parity`](https://github.com/hyperdivision/tape-parity)
+You can configure the moonbeam node a little using a `tape-moonbeam` prop at the top-level of your `package.json`. An example, showcasing the defaults:
+
+```json
+{
+  "dependencies": {
+    "tape-moonbeam": "nuggetdigital/tape-moonbeam#v0.6.1",
+  },
+  "scripts":{
+    "test": "node ./test.js"
+  },
+  "tape-moonbeam": {
+    "execPath": null,
+    "port": 19419,
+    "rpcPort": 19420,
+    "wsPort": 19421,
+    "maxStartMs": 3000,
+    "argv": [
+      "--execution=Native",
+      "--no-telemetry",
+      "--no-prometheus",
+      "--dev",
+      "--sealing=manual",
+      "--port=19419",
+      "--rpc-port=19420",
+      "--ws-port=19421",
+      "--tmp"
+    ]
+  }
+}
+```
+
+## Prior art
+
+This is just a derivative of `@emilbayes` [`tape-parity`](https://github.com/hyperdivision/tape-parity)
 
 ## License
 
