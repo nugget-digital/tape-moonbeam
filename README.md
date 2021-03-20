@@ -1,5 +1,7 @@
 # tape-moonbeam
 
+[![ci](https://github.com/nuggetdigital/tape-moonbeam/workflows/ci/badge.svg)](https://github.com/nuggetdigital/tape-moonbeam/actions/workflows/ci.yml)
+
 Run `tape` tests backed by a `moonbeam` dev chain
 
 ### Usage 
